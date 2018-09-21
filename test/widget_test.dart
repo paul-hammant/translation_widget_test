@@ -12,7 +12,13 @@
 // find child widgets in the widget tree, read text, and verify that the values of widget properties
 // are correct.
 
+import 'dart:convert';
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:little_flutter_app/DocIn.dart';
 import 'package:little_flutter_app/DocOut.dart';
@@ -20,6 +26,22 @@ import 'package:little_flutter_app/Translations.dart';
 
 
 void main() {
+
+  final allLocales = ['locale/i18n_en.json', 'locale/i18n_hi.json'];
+  Map<String, ByteData> localisedData = new Map();
+
+  // I found that in testWidgets methods flutter now allowing to access the bundle/filesystem
+  // that's why I moved the loading logic to this setUp function
+  setUp(() async {
+    for(String path in allLocales) {
+      final uri = Uri.file(path);
+      final fileData = await File.fromUri(uri).readAsBytes();
+      final data = new ByteData.view(new Uint8List.fromList(fileData).buffer);
+      localisedData[path] = data;
+    }
+  });
+
+
   testWidgets('Doc In test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
     await tester.pumpWidget(buildTestableWidget(new DocIn()));
@@ -29,14 +51,30 @@ void main() {
   });
 
   testWidgets('Doc Out test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    //TODO Make changes here. Pass a correct context and initialize Translations.
-    // See line 33 to 63 in main.dart how it works correctly when the app is ran
-    // This test should use around the same logic
-    Translations translations = new Translations(null);
-    await tester.pumpWidget(buildTestableWidget(new DocOut(translations)));
 
-    //FIXME This test needs to work
+    final rootWidget = new DefaultAssetBundle(
+      bundle: new TestAssetBundle(localisedData),
+      child: new Builder(
+        builder: (BuildContext context) {
+          final Translations translations = new Translations(context);
+          return new MaterialApp(
+            localizationsDelegates: [
+              TranslationsDelegate(translations),
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+            ],
+            supportedLocales: [
+              const Locale('en', ''),
+              const Locale('hi', ''),
+            ],
+            home: new DocOut(translations),
+          );
+        },
+      ),
+    );
+
+    await tester.pumpWidget(rootWidget);
+    await tester.pumpAndSettle();
     expect(find.text('Doc Out'), findsNWidgets(2));
   });
 }
@@ -48,4 +86,18 @@ Widget buildTestableWidget(Widget widget) {
           home: widget,
       )
   );
+}
+
+/// Assets bundle provider
+class TestAssetBundle extends CachingAssetBundle {
+
+  final Map<String, ByteData> localisedData;
+
+  TestAssetBundle(this.localisedData);
+
+  @override
+  Future<ByteData> load(String key) async {
+    return localisedData[key];
+  }
+
 }

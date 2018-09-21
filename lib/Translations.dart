@@ -31,8 +31,8 @@ class Translations {
 
   Future<Translations> load(Locale locale) async {
     this.locale = locale;
-    String jsonContent =
-        await rootBundle.loadString("locale/i18n_${locale.languageCode}.json");
+    final bundle = DefaultAssetBundle.of(context);
+    String jsonContent = await bundle.loadString("locale/i18n_${locale.languageCode}.json");
     _localizedValues = json.decode(jsonContent);
     return this;
   }
