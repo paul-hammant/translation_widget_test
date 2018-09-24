@@ -10,18 +10,16 @@ import 'package:little_flutter_app/Translations.dart';
 
 class DocOut extends StatelessWidget {
 
-  Translations translations;
-
-  DocOut(this.translations);
-
   @override
-  Widget build (BuildContext ctxt) {
+  Widget build (BuildContext context) {
+    final translations = Translations.of(context);
+
     return new Scaffold(
         appBar: new AppBar(
-          title: new Text(this.translations.text("doc_out")),
+          title: new Text(translations.text("doc_out")),
         ),
         body: new Center(
-          child: Text(this.translations.text("doc_out"), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),),
+          child: Text(translations.text("doc_out"), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),),
         )
     );
   }

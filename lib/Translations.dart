@@ -16,14 +16,11 @@ import 'Application.dart';
 class Translations {
 
 
-  Translations(BuildContext context) {
-    this.context = context;
-    _localizedValues = null;
-  }
+  Translations(this.context);
 
   Locale locale;
-  BuildContext context;
-  static Map<dynamic, dynamic> _localizedValues;
+  final BuildContext context;
+  Map<dynamic, dynamic> _localizedValues;
 
   String text(String key) {
     return _localizedValues[key] ?? '** $key not found';
@@ -35,6 +32,10 @@ class Translations {
     String jsonContent = await bundle.loadString("locale/i18n_${locale.languageCode}.json");
     _localizedValues = json.decode(jsonContent);
     return this;
+  }
+
+  static Translations of(BuildContext context) {
+    return Localizations.of<Translations>(context, Translations);
   }
 
   get currentLanguage => locale.languageCode;

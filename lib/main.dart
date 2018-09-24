@@ -62,30 +62,29 @@ class _MyAppState extends State<MyApp> {
         const Locale('hi', ''),
       ],
 
-      home: new DocuSend(title: Strings.title, translations: translations),
+      home: new DocuSend(title: Strings.title),
     );
   }
 }
 
 class DocuSend extends StatefulWidget {
-  DocuSend({Key key, this.title, this.translations}) : super(key: key);
+  DocuSend({Key key, this.title}) : super(key: key);
 
   final String title;
-  final Translations translations;
 
   @override
-  createState() => new DocuSendState(translations: translations);
+  createState() => new DocuSendState();
 }
 
 class DocuSendState extends State<DocuSend> {
 
-  DocuSendState({Key key, this.translations});
+  DocuSendState({Key key});
 
-  final Translations translations;
 
   @override
   Widget build(BuildContext context) {
     width = Strings.dimensions(context);
+    final translations = Translations.of(context);
 
     var docOut = new Container(
       margin: EdgeInsets.only(right: 20.0 * width),
@@ -147,7 +146,7 @@ class DocuSendState extends State<DocuSend> {
   docOutMethod() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => DocOut(translations)),
+      MaterialPageRoute(builder: (context) => DocOut()),
     );
   }
 

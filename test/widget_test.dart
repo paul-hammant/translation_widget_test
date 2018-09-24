@@ -52,25 +52,9 @@ void main() {
 
   testWidgets('Doc Out test', (WidgetTester tester) async {
 
-    final rootWidget = new DefaultAssetBundle(
-      bundle: new TestAssetBundle(localisedData),
-      child: new Builder(
-        builder: (BuildContext context) {
-          final Translations translations = new Translations(context);
-          return new MaterialApp(
-            localizationsDelegates: [
-              TranslationsDelegate(translations),
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-            ],
-            supportedLocales: [
-              const Locale('en', ''),
-              const Locale('hi', ''),
-            ],
-            home: new DocOut(translations),
-          );
-        },
-      ),
+    final rootWidget = buildLocalisedTestableWidget(
+        bundle: new TestAssetBundle(localisedData),
+        child: new DocOut(),
     );
 
     await tester.pumpWidget(rootWidget);
@@ -87,6 +71,36 @@ Widget buildTestableWidget(Widget widget) {
       )
   );
 }
+
+
+
+Widget buildLocalisedTestableWidget({
+  @required AssetBundle bundle,
+  @required Widget child
+}) {
+  return new DefaultAssetBundle(
+    bundle: bundle,
+    child: new Builder(
+      builder: (BuildContext context) {
+        final Translations translations = new Translations(context);
+        return new MaterialApp(
+          localizationsDelegates: [
+            TranslationsDelegate(translations),
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+          ],
+          supportedLocales: [
+            const Locale('en', ''),
+            const Locale('hi', ''),
+          ],
+          home: child,
+        );
+      },
+    ),
+  );
+}
+
+
 
 /// Assets bundle provider
 class TestAssetBundle extends CachingAssetBundle {
